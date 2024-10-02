@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Virtual Environment
+venv/
+.venv/
+env/
+.env/
+.env
+
+# Docker
+**/Dockerfile
+**/docker-compose.yml
+*.dockerignore
+*.tar
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Logs
+*.log
+
+# Test results
+coverage/
+.coverage
+
+# SSL Certificates
+*.crt
+*.key
