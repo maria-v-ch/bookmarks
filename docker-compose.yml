@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    volumes:
+      - bookmarks_data:/bookmarks_data
+  web_migrate:
+    extends:
+      service: web
+    command: python manage.py migrate
+  web_run:
+    extends:
+      service: web
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - web_migrate
+volumes:
+    bookmarks_data:
