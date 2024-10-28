@@ -3,10 +3,33 @@
 {% block content %}
   <h1>Edit your account</h1>
   <p>You can edit your account using the following form:</p>
-  <form method="post" enctype="multipart/form-data">
-    {{ user_form.as_p }}
-    {{ profile_form.as_p }}
+  <form method="post">
     {% csrf_token %}
-    <p><input type="submit" value="Save changes"></p>
+    
+    {% for field in user_form %}
+      <div class="form-field">
+        <label for="{{ field.id_for_label }}">
+          {{ field.label }}
+          {% if field.field.required %}
+            <span class="required-asterisk">*</span>
+          {% endif %}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+          <div class="field-errors">
+            {{ field.errors }}
+          </div>
+        {% endif %}
+        {% if field.help_text %}
+          <div class="field-help">
+            {{ field.help_text }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <div class="form-actions">
+      <input type="submit" value="Save changes">
+    </div>
   </form>
 {% endblock %}

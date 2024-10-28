@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>{% block title %}{% endblock %}</title>
-  <link href="{% static "css/base.css" %}" rel="stylesheet">
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
 </head>
 <body>
   <div id="header">
@@ -11,27 +11,30 @@
     {% if request.user.is_authenticated %}
       <ul class="menu">
         <li {% if section == "dashboard" %}class="selected"{% endif %}>
-          <a href="{% url "dashboard" %}">My dashboard</a>
+          <a href="{% url 'account:dashboard' %}">My dashboard</a>
         </li>
-        <li {% if section == "images" %}class="selected"{% endif %}>
-          <a href="#">Images</a>
-        </li>
-        <li {% if section == "people" %}class="selected"{% endif %}>
-          <a href="#">People</a>
-        </li>
+        {% if request.user.profile.is_admin %}
+          <li {% if section == "admin_dashboard" %}class="selected"{% endif %}>
+            <a href="{% url 'account:admin_dashboard' %}">Admin Dashboard</a>
+          </li>
+        {% endif %}
       </ul>
     {% endif %}
-    <span class="user">
-      {% if request.user.is_authenticated %}
-        Hello {{ request.user.first_name|default:request.user.username }},
-        <form action="{% url "logout" %}" method="post">
-          <button type="submit">Logout</button>
-          {% csrf_token %}
-        </form>
-      {% else %}
-        <a href="{% url "login" %}">Log-in</a>
-      {% endif %}
-    </span>
+    {% if request.user.is_authenticated %}
+      <div class="user-footer">
+        <div class="user-info">
+          Hello {{ request.user.first_name|default:request.user.username }},
+          <form action="{% url 'account:logout' %}" method="post">
+            <button type="submit">Logout</button>
+            {% csrf_token %}
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <span class="user">
+        <a href="{% url 'account:login' %}">Log-in</a>
+      </span>
+    {% endif %}
   </div>
   {% if messages %}
     <ul class="messages">

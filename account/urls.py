@@ -1,21 +1,50 @@
+"""URL configuration for the account application."""
+
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from . import views
+
+app_name = 'account'
+
 urlpatterns = [
-    # previous login url
-    # path('login/', views.user_login, name='login'),
-    # login / logout urls
-    # path('login/', auth_views.LoginView.as_view(), name='login'),
-    # path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    # path('password-change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
-    # path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
-    # reset password urls
-    # path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    # path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    # path('password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    # path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    # Password reset URLs
+    path('password_reset/',
+         auth_views.PasswordResetView.as_view(
+             success_url='done/'
+         ),
+         name='password_reset'),
+    path('password_reset/done/',
+         auth_views.PasswordResetDoneView.as_view(),
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>/',
+         auth_views.PasswordResetConfirmView.as_view(
+             success_url='/account/reset/done/'
+         ),
+         name='password_reset_confirm'),
+    path('reset/done/',
+         auth_views.PasswordResetCompleteView.as_view(),
+         name='password_reset_complete'),
+    
+    # Authentication URLs
     path('', include('django.contrib.auth.urls')),
+    
+    # Dashboard URLs
     path('', views.dashboard, name='dashboard'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+    # Registration and profile URLs
     path('register/', views.register, name='register'),
     path('edit/', views.edit, name='edit'),
+    
+    # Admin management URLs
+    path(
+        'make-admin/<int:user_id>/',
+        views.make_admin,
+        name='make_admin'
+    ),
+    path(
+        'remove-admin/<int:user_id>/',
+        views.remove_admin,
+        name='remove_admin'
+    ),
 ]

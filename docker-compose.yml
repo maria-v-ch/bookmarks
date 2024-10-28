@@ -2,20 +2,62 @@ services:
   web:
     build: .
     volumes:
-      - bookmarks_data:/bookmarks_data
-  web_migrate:
-    extends:
-      service: web
-    command: python manage.py migrate
-  web_run:
-    extends:
-      service: web
-    command: python manage.py runserver 0.0.0.0:8000
+      - .:/code
+      - static_volume:/code/static
     ports:
-      - "8000:8000"
+      - "8004:8000"
     env_file:
       - .env
     depends_on:
-      - web_migrate
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  backup:
+    image: postgres:13-alpine
+    profiles: ["backup"]
+    volumes:
+      - ./backups:/backups
+    env_file:
+      - .env
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: |
+      sh -c '
+      pg_dump -h db -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /backups/backup_$$(date +%Y-%m-%d_%H-%M-%S).sql &&
+      cd /backups &&
+      ls -t | tail -n +6 | xargs -r rm --
+      '
+  test:
+    build: .
+    profiles: ["test"]
+    volumes:
+      - .:/code
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    command: sh -c "python manage.py migrate && coverage run --source='.' manage.py test && coverage report"
+
 volumes:
-    bookmarks_data:
+    postgres_data:
+    static_volume:

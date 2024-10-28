@@ -1,15 +1,23 @@
-from django.contrib.auth.models import User
+"""Custom authentication backends for the account application."""
 
 from account.models import Profile
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
+from typing import Optional, Union
+
+User = get_user_model()
 
 
+class EmailAuthBackend(BaseBackend):
+    """Authentication backend that allows users to log in with email."""
 
-class EmailAuthBackend:
-    """
-    Authenticate using an e-mail address.
-    """
-
-    def authenticate(self, request, username=None, password=None):
+    def authenticate(
+        self, 
+        request, 
+        username: str = None, 
+        password: str = None
+    ) -> Optional[User]:
+        """Authenticate a user based on email address."""
         try:
             user = User.objects.get(email=username)
             if user.check_password(password):
@@ -18,7 +26,8 @@ class EmailAuthBackend:
         except (User.DoesNotExist, User.MultipleObjectsReturned):
             return None
 
-    def get_user(self, user_id):
+    def get_user(self, user_id: int) -> Optional[User]:
+        """Retrieve a user by their ID."""
         try:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:

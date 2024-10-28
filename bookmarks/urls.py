@@ -18,11 +18,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
+from django.views.static import serve 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
+    path('', RedirectView.as_view(url='/account/', permanent=False)),  # Redirect root to /account/
 ]
 
 if settings.DEBUG:
@@ -30,3 +34,4 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
