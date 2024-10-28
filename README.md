@@ -41,7 +41,7 @@ A Django-based user management system with role-based access control, social aut
 
 ## Project Structure
 
-bash
+```
 bookmarks/
 ├── account/ # Main application
 │ ├── management/ # Custom management commands
@@ -54,6 +54,7 @@ bookmarks/
 │ └── migrations/ # Database migrations
 ├── docker/ # Docker configuration files
 └── bookmarks/ # Project configuration
+```
 
 
 ## Quick Start
